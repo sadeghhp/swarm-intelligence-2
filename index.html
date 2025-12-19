@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swarm Intelligence Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a0f;
+    }
+    
+    #container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    #container canvas {
+      display: block;
+    }
+    
+    #stats {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(10, 10, 15, 0.85);
+      color: #00ff88;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      min-width: 180px;
+    }
+    
+    #stats .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+    
+    #stats .stat-label {
+      color: #666;
+    }
+    
+    #stats .stat-value {
+      color: #00ff88;
+      font-weight: 600;
+    }
+    
+    #gpu-status {
+      position: fixed;
+      top: 10px;
+      right: 320px;
+      background: rgba(10, 10, 15, 0.9);
+      color: #ffd700;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    #gpu-status::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+      animation: pulse 2s infinite;
+    }
+    
+    #gpu-status.gpu-active {
+      color: #00ff88;
+      border-color: rgba(0, 255, 136, 0.4);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+    }
+    
+    #gpu-status.gpu-active::before {
+      box-shadow: 0 0 12px #00ff88;
+    }
+    
+    #gpu-status.gpu-inactive {
+      color: #ffaa44;
+      border-color: rgba(255, 170, 68, 0.4);
+      box-shadow: 0 0 20px rgba(255, 170, 68, 0.15);
+    }
+    
+    #gpu-status.gpu-inactive::before {
+      box-shadow: 0 0 12px #ffaa44;
+      animation: pulse-slow 3s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.9); }
+    }
+    
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    .tp-dfwv {
+      position: fixed !important;
+      top: 10px !important;
+      right: 10px !important;
+      width: 300px !important;
+      max-height: calc(100vh - 20px) !important;
+      overflow-y: auto !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="stats">
+    <div class="stat-row">
+      <span class="stat-label">FPS:</span>
+      <span class="stat-value" id="fps">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Birds:</span>
+      <span class="stat-value" id="bird-count">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Avg Density:</span>
+      <span class="stat-value" id="avg-density">0.0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Avg Speed:</span>
+      <span class="stat-value" id="avg-speed">0.0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Sim Time:</span>
+      <span class="stat-value" id="sim-time">0.0s</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Energy:</span>
+      <span class="stat-value" id="energy-status">⚡ 100%</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Predator:</span>
+      <span class="stat-value" id="predator-status">None</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Food:</span>
+      <span class="stat-value" id="food-status">None</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Gender:</span>
+      <span class="stat-value" id="gender-count">♂ 0 / ♀ 0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Social:</span>
+      <span class="stat-value" id="social-status">💕 0 / ⚔ 0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Time:</span>
+      <span class="stat-value" id="time-of-day">☀️ Day</span>
+    </div>
+  </div>
+  <div id="gpu-status">🔄 Initializing...</div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
+
+

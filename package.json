@@ -1,0 +1,19 @@
+{
+  "name": "swarm-intelligence-simulator",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@flux-gpu/core": "^0.2.0",
+    "tweakpane": "^4.0.3"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.40",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
+  }
+}

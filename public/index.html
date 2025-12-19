@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swarm Intelligence Simulator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a0f;
+    }
+    
+    #container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    #container canvas {
+      display: block;
+    }
+    
+    #stats {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #00ff88;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      z-index: 100;
+      min-width: 180px;
+    }
+    
+    #stats .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+    
+    #stats .stat-label {
+      color: #888;
+    }
+    
+    #stats .stat-value {
+      color: #00ff88;
+      font-weight: bold;
+    }
+    
+    #gpu-status {
+      position: fixed;
+      top: 10px;
+      right: 320px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #ffd700;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      z-index: 100;
+    }
+    
+    #gpu-status.gpu-active {
+      color: #00ff88;
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+    
+    #gpu-status.gpu-inactive {
+      color: #ff6b6b;
+      border-color: rgba(255, 107, 107, 0.3);
+    }
+    
+    .tp-dfwv {
+      position: fixed !important;
+      top: 10px !important;
+      right: 10px !important;
+      width: 300px !important;
+      max-height: calc(100vh - 20px) !important;
+      overflow-y: auto !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="stats">
+    <div class="stat-row">
+      <span class="stat-label">FPS:</span>
+      <span class="stat-value" id="fps">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Birds:</span>
+      <span class="stat-value" id="bird-count">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Avg Density:</span>
+      <span class="stat-value" id="avg-density">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Avg Speed:</span>
+      <span class="stat-value" id="avg-speed">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Sim Time:</span>
+      <span class="stat-value" id="sim-time">0s</span>
+    </div>
+  </div>
+  <div id="gpu-status">Checking GPU...</div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
+
+

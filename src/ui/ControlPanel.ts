@@ -28,7 +28,7 @@ type TweakpaneAny = any;
 
 /**
  * Tweakpane control panel for simulation parameters.
- * Version: 6.0.0 - Added onConfigChange callbacks to all UI bindings
+ * Version: 6.1.0 - Increased maximum bird population slider to 20000
  */
 export class ControlPanel {
   private pane: TweakpaneAny;
@@ -131,7 +131,7 @@ export class ControlPanel {
     // Bird count (quick access)
     folder.addBinding(this.simConfig, 'birdCount', {
       min: 100,
-      max: 10000,
+      max: 20000,
       step: 100,
       label: 'Population'
     }).on('change', (ev: TweakpaneAny) => {

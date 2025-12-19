@@ -12,13 +12,13 @@ import { Wind, AttractorManager, FoodSourceManager, createPredator, BasePredator
 import { createAttractor } from './environment/Attractor';
 import type { ILoadedConfig, ISimulationConfig, IEnvironmentConfig, IRenderingConfig } from './types';
 
-// Version: 2.3.0 - Added pause/resume/reset, shift+click food, enhanced stats
+// Version: 2.4.0 - Increased maximum bird population to 20000
 
-const MAX_BIRDS = 10000;
+const MAX_BIRDS = 20000;
 
 /**
  * Main application orchestrator.
- * Version: 2.3.0 - Added pause/resume/reset, shift+click food, enhanced stats.
+ * Version: 2.4.0 - Increased maximum bird population to 20000.
  */
 export class App {
   // Flux GPU context

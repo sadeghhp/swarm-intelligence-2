@@ -28,7 +28,7 @@ type TweakpaneAny = any;
 
 /**
  * Tweakpane control panel for simulation parameters.
- * Version: 6.1.0 - Increased maximum bird population slider to 20000
+ * Version: 6.3.0 - Added emojis to all settings folders
  */
 export class ControlPanel {
   private pane: TweakpaneAny;
@@ -92,8 +92,16 @@ export class ControlPanel {
     // Simulation folder
     this.buildSimulationFolder();
 
-    // Environment folder
+    // Environment folder (Wind, Predator, Food)
     this.buildEnvironmentFolder();
+
+    // Feature folders (root level)
+    this.buildEnergySystemFolder();
+    this.buildMatingFolder();
+    this.buildFireflyFolder();
+    this.buildDayNightFolder();
+    this.buildTerritoriesFolder();
+    this.buildEcosystemFolder();
 
     // Rendering folder
     this.buildRenderingFolder();
@@ -104,7 +112,7 @@ export class ControlPanel {
    */
   private buildPresetsFolder(): void {
     const folder = this.pane.addFolder({
-      title: 'Presets',
+      title: '🎭 Presets',
       expanded: true
     });
 
@@ -295,7 +303,7 @@ export class ControlPanel {
    */
   private buildSimulationFolder(): void {
     const folder = this.pane.addFolder({
-      title: 'Simulation',
+      title: '🎮 Simulation',
       expanded: false
     });
 
@@ -432,12 +440,12 @@ export class ControlPanel {
    */
   private buildEnvironmentFolder(): void {
     const folder = this.pane.addFolder({
-      title: 'Environment',
+      title: '🌍 Environment',
       expanded: false
     });
 
     // Wind
-    const wind = folder.addFolder({ title: 'Wind', expanded: true });
+    const wind = folder.addFolder({ title: '💨 Wind', expanded: true });
 
     wind.addBinding(this.envConfig, 'windEnabled').on('change', () => {
       this.onConfigChange?.();
@@ -469,7 +477,7 @@ export class ControlPanel {
     });
 
     // Predator
-    const predator = folder.addFolder({ title: 'Predator', expanded: true });
+    const predator = folder.addFolder({ title: '🦅 Predator', expanded: true });
 
     predator.addBinding(this.envConfig, 'predatorEnabled', {
       label: 'Enabled'
@@ -525,7 +533,7 @@ export class ControlPanel {
     });
 
     // Food
-    const food = folder.addFolder({ title: 'Food', expanded: true });
+    const food = folder.addFolder({ title: '🍎 Food', expanded: true });
 
     food.addBinding(this.envConfig, 'foodEnabled', {
       label: 'Enabled'
@@ -558,17 +566,21 @@ export class ControlPanel {
     }).on('change', () => {
       this.onConfigChange?.();
     });
+  }
 
-    // Energy System
-    const energy = folder.addFolder({ title: '⚡ Energy System', expanded: false });
+  /**
+   * Build Energy System folder (root level).
+   */
+  private buildEnergySystemFolder(): void {
+    const folder = this.pane.addFolder({ title: '⚡ Energy System', expanded: false });
 
-    energy.addBinding(this.simConfig, 'energyEnabled', {
+    folder.addBinding(this.simConfig, 'energyEnabled', {
       label: 'Enabled'
     }).on('change', () => {
       this.onConfigChange?.();
     });
 
-    energy.addBinding(this.simConfig, 'energyDecayRate', {
+    folder.addBinding(this.simConfig, 'energyDecayRate', {
       min: 0.001,
       max: 0.1,
       step: 0.001,
@@ -577,7 +589,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    energy.addBinding(this.simConfig, 'minEnergySpeed', {
+    folder.addBinding(this.simConfig, 'minEnergySpeed', {
       min: 0.1,
       max: 1.0,
       step: 0.05,
@@ -586,7 +598,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    energy.addBinding(this.simConfig, 'foodEnergyRestore', {
+    folder.addBinding(this.simConfig, 'foodEnergyRestore', {
       min: 0.1,
       max: 1.0,
       step: 0.05,
@@ -594,17 +606,21 @@ export class ControlPanel {
     }).on('change', () => {
       this.onConfigChange?.();
     });
+  }
 
-    // Mating & Competition
-    const mating = folder.addFolder({ title: '💕 Mating & Competition', expanded: false });
+  /**
+   * Build Mating & Competition folder (root level).
+   */
+  private buildMatingFolder(): void {
+    const folder = this.pane.addFolder({ title: '💕 Mating & Competition', expanded: false });
 
-    mating.addBinding(this.envConfig, 'matingEnabled', {
+    folder.addBinding(this.envConfig, 'matingEnabled', {
       label: 'Enabled'
     }).on('change', () => {
       this.onConfigChange?.();
     });
 
-    mating.addBinding(this.envConfig, 'mateSearchRadius', {
+    folder.addBinding(this.envConfig, 'mateSearchRadius', {
       min: 50,
       max: 300,
       step: 10,
@@ -613,7 +629,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    mating.addBinding(this.envConfig, 'mateAttractionStrength', {
+    folder.addBinding(this.envConfig, 'mateAttractionStrength', {
       min: 0.1,
       max: 2.0,
       step: 0.1,
@@ -622,7 +638,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    mating.addBinding(this.envConfig, 'matingDuration', {
+    folder.addBinding(this.envConfig, 'matingDuration', {
       min: 1,
       max: 10,
       step: 0.5,
@@ -631,7 +647,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    mating.addBinding(this.envConfig, 'matingCooldown', {
+    folder.addBinding(this.envConfig, 'matingCooldown', {
       min: 5,
       max: 60,
       step: 5,
@@ -640,7 +656,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    mating.addBinding(this.envConfig, 'fightRadius', {
+    folder.addBinding(this.envConfig, 'fightRadius', {
       min: 20,
       max: 100,
       step: 5,
@@ -649,7 +665,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    mating.addBinding(this.envConfig, 'fightStrength', {
+    folder.addBinding(this.envConfig, 'fightStrength', {
       min: 0.1,
       max: 1.0,
       step: 0.1,
@@ -658,7 +674,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    mating.addBinding(this.envConfig, 'femaleSelectivity', {
+    folder.addBinding(this.envConfig, 'femaleSelectivity', {
       min: 0,
       max: 1,
       step: 0.1,
@@ -666,11 +682,15 @@ export class ControlPanel {
     }).on('change', () => {
       this.onConfigChange?.();
     });
+  }
 
-    // Firefly Synchronization
-    const firefly = folder.addFolder({ title: '🔥 Firefly Glow', expanded: false });
+  /**
+   * Build Firefly Glow folder (root level).
+   */
+  private buildFireflyFolder(): void {
+    const folder = this.pane.addFolder({ title: '🔥 Firefly Glow', expanded: false });
 
-    firefly.addBinding(this.envConfig, 'fireflyEnabled', {
+    folder.addBinding(this.envConfig, 'fireflyEnabled', {
       label: 'Enabled'
     }).on('change', (ev: TweakpaneAny) => {
       // When firefly is enabled, automatically set colorMode to 'firefly'
@@ -683,7 +703,7 @@ export class ControlPanel {
       this.pane?.refresh();
     });
 
-    firefly.addBinding(this.envConfig, 'fireflyBaseFrequency', {
+    folder.addBinding(this.envConfig, 'fireflyBaseFrequency', {
       min: 0.2,
       max: 3.0,
       step: 0.1,
@@ -692,7 +712,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    firefly.addBinding(this.envConfig, 'fireflyFrequencyVariation', {
+    folder.addBinding(this.envConfig, 'fireflyFrequencyVariation', {
       min: 0,
       max: 0.5,
       step: 0.05,
@@ -701,7 +721,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    firefly.addBinding(this.envConfig, 'fireflyCouplingStrength', {
+    folder.addBinding(this.envConfig, 'fireflyCouplingStrength', {
       min: 0,
       max: 2.0,
       step: 0.1,
@@ -710,7 +730,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    firefly.addBinding(this.envConfig, 'fireflySyncRadius', {
+    folder.addBinding(this.envConfig, 'fireflySyncRadius', {
       min: 20,
       max: 200,
       step: 10,
@@ -719,7 +739,7 @@ export class ControlPanel {
       this.onConfigChange?.();
     });
 
-    firefly.addBinding(this.envConfig, 'fireflyFlashDuration', {
+    folder.addBinding(this.envConfig, 'fireflyFlashDuration', {
       min: 0.1,
       max: 0.6,
       step: 0.05,
@@ -727,22 +747,13 @@ export class ControlPanel {
     }).on('change', () => {
       this.onConfigChange?.();
     });
-
-    // Day/Night Cycle
-    this.buildDayNightFolder(folder);
-
-    // Territories
-    this.buildTerritoriesFolder(folder);
-
-    // Multi-Species Ecosystem
-    this.buildEcosystemFolder(folder);
   }
 
   /**
-   * Build Day/Night Cycle folder.
+   * Build Day/Night Cycle folder (root level).
    */
-  private buildDayNightFolder(parent: TweakpaneAny): void {
-    const folder = parent.addFolder({ title: '🌙 Day/Night Cycle', expanded: false });
+  private buildDayNightFolder(): void {
+    const folder = this.pane.addFolder({ title: '🌙 Day/Night Cycle', expanded: false });
 
     // Ensure dayNight config exists with defaults
     if (!this.envConfig.dayNight) {
@@ -804,10 +815,10 @@ export class ControlPanel {
   }
 
   /**
-   * Build Territories folder.
+   * Build Territories folder (root level).
    */
-  private buildTerritoriesFolder(parent: TweakpaneAny): void {
-    const folder = parent.addFolder({ title: '🏠 Territories', expanded: false });
+  private buildTerritoriesFolder(): void {
+    const folder = this.pane.addFolder({ title: '🏠 Territories', expanded: false });
 
     // Ensure territories config exists with defaults
     if (!this.envConfig.territories) {
@@ -852,10 +863,10 @@ export class ControlPanel {
   }
 
   /**
-   * Build Multi-Species Ecosystem folder.
+   * Build Multi-Species Ecosystem folder (root level).
    */
-  private buildEcosystemFolder(parent: TweakpaneAny): void {
-    const folder = parent.addFolder({ title: '🦋 Multi-Species', expanded: false });
+  private buildEcosystemFolder(): void {
+    const folder = this.pane.addFolder({ title: '🦋 Multi-Species', expanded: false });
 
     // Ensure ecosystem config exists with defaults
     if (!this.envConfig.ecosystem) {
@@ -917,7 +928,7 @@ export class ControlPanel {
    */
   private buildRenderingFolder(): void {
     const folder = this.pane.addFolder({
-      title: 'Rendering',
+      title: '🎨 Rendering',
       expanded: false
     });
 

@@ -62,3 +62,4 @@ Birds do not have 360° vision by default. Their perception is limited to a visi
 
 ## Spatial Grid Optimization
 To avoid O(n²) complexity, the simulation uses a **Spatial Grid**. The world is divided into cells, and each bird is binned into a cell every frame. Neighbor lookups only check the bird's current and adjacent cells, dramatically increasing performance for large populations.
+

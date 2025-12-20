@@ -353,34 +353,186 @@ export class Canvas2DRenderer {
     const ctx = this.ctx;
     const x = predator.position.x;
     const y = predator.position.y;
-    const heading = predator.heading;
-    const size = 20;
-
+    const heading = predator.getSmoothedHeading();
+    const stretch = predator.getSpeedStretch();
+    const intensity = predator.getVisualIntensity();
+    const baseSize = Math.min(predator.getBasePanicRadius() / 8, 20);
+    
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(heading);
 
-    // Red predator shape (larger triangle)
-    ctx.fillStyle = '#ff2222';
+    // Get base color
+    const color = predator.getColor();
+    const r = (color >> 16) & 0xFF;
+    const g = (color >> 8) & 0xFF;
+    const b = color & 0xFF;
+
+    // Modify color based on state
+    let finalR = r, finalG = g, finalB = b;
+    const state = predator.state;
+    
+    if (state === 'stalking' || state === 'ambushing') {
+      // Yellow tint
+      finalR = Math.min(255, r + 30 * intensity);
+      finalG = Math.min(255, g + 20 * intensity);
+    } else if (state === 'hunting' || state === 'herding') {
+      // Orange tint
+      finalR = Math.min(255, r + 50 * intensity);
+      finalG = Math.max(0, g - 20 * intensity);
+    } else if (state === 'attacking' || state === 'diving') {
+      // Red pulse
+      const pulse = Math.sin(this.time * 8) * 0.5 + 0.5;
+      finalR = Math.min(255, r + 100 * intensity * pulse);
+      finalG = Math.max(0, g - 50 * intensity);
+      finalB = Math.max(0, b - 50 * intensity);
+    }
+
+    // Energy-based brightness
+    const energyFactor = 0.6 + predator.energy * 0.4;
+    finalR = Math.round(finalR * energyFactor);
+    finalG = Math.round(finalG * energyFactor);
+    finalB = Math.round(finalB * energyFactor);
+
+    // Draw shape based on predator type
+    const type = predator.type;
+    ctx.fillStyle = `rgb(${finalR}, ${finalG}, ${finalB})`;
     ctx.beginPath();
-    ctx.moveTo(size, 0);
-    ctx.lineTo(-size * 0.7, size * 0.5);
-    ctx.lineTo(-size * 0.7, -size * 0.5);
+
+    if (type === 'owl') {
+      // Rounder owl shape
+      this.drawOwlShape(ctx, baseSize, stretch);
+    } else if (type === 'shark') {
+      // Sleek shark shape
+      this.drawSharkShape(ctx, baseSize, stretch);
+    } else if (type === 'orca') {
+      // Large orca shape
+      this.drawOrcaShape(ctx, baseSize, stretch);
+    } else if (type === 'barracuda') {
+      // Elongated barracuda
+      this.drawBarracudaShape(ctx, baseSize, stretch);
+    } else if (type === 'sea-lion') {
+      // Sea lion (use bird-like shape)
+      this.drawBirdShape(ctx, baseSize, stretch);
+    } else {
+      // Birds (hawk, falcon, eagle)
+      this.drawBirdShape(ctx, baseSize, stretch);
+    }
+
     ctx.closePath();
     ctx.fill();
 
-    // Outline
-    ctx.strokeStyle = '#ff6666';
-    ctx.lineWidth = 2;
+    // Outline with glow effect
+    const glowIntensity = intensity * 0.5;
+    ctx.strokeStyle = `rgba(${Math.min(255, finalR + 50)}, ${Math.min(255, finalG + 50)}, ${Math.min(255, finalB + 50)}, ${0.5 + glowIntensity})`;
+    ctx.lineWidth = 1.5 + intensity;
     ctx.stroke();
 
     ctx.restore();
 
-    // Draw panic radius
-    ctx.strokeStyle = 'rgba(255, 34, 34, 0.2)';
+    // Draw panic radius with state-based opacity
+    const panicOpacity = predator.isSilent() ? 0.1 : 0.2 + intensity * 0.1;
+    ctx.strokeStyle = `rgba(${finalR}, ${finalG}, ${finalB}, ${panicOpacity})`;
+    ctx.setLineDash([5, 5]);
     ctx.beginPath();
     ctx.arc(x, y, predator.panicRadius, 0, Math.PI * 2);
     ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw target line when hunting
+    if ((state === 'hunting' || state === 'attacking' || state === 'diving') && predator.target) {
+      ctx.strokeStyle = `rgba(255, 100, 100, ${0.3 * intensity})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(predator.target.x, predator.target.y);
+      ctx.stroke();
+    }
+  }
+
+  private drawBirdShape(ctx: CanvasRenderingContext2D, size: number, stretch: number): void {
+    const bodyLen = size * 1.8 * stretch;
+    const wingSpan = size * 1.4;
+    const wingBack = size * 0.3;
+
+    ctx.moveTo(bodyLen, 0);                              // Beak
+    ctx.lineTo(bodyLen * 0.6, size * 0.15);             // Head right
+    ctx.lineTo(bodyLen * 0.3, wingSpan * 0.5);          // Wing front right
+    ctx.lineTo(-wingBack, wingSpan);                     // Wing tip right
+    ctx.lineTo(-bodyLen * 0.4, size * 0.2);             // Body right
+    ctx.lineTo(-bodyLen * 0.7, 0);                       // Tail
+    ctx.lineTo(-bodyLen * 0.4, -size * 0.2);            // Body left
+    ctx.lineTo(-wingBack, -wingSpan);                    // Wing tip left
+    ctx.lineTo(bodyLen * 0.3, -wingSpan * 0.5);         // Wing front left
+    ctx.lineTo(bodyLen * 0.6, -size * 0.15);            // Head left
+  }
+
+  private drawOwlShape(ctx: CanvasRenderingContext2D, size: number, stretch: number): void {
+    const bodyLen = size * 1.4 * stretch;
+    const width = size * 1.2;
+
+    ctx.moveTo(bodyLen * 0.8, 0);                        // Face center
+    ctx.lineTo(bodyLen * 0.5, width * 0.4);
+    ctx.lineTo(0, width * 0.7);                          // Right side
+    ctx.lineTo(-bodyLen * 0.5, width * 0.5);
+    ctx.lineTo(-bodyLen * 0.6, 0);                       // Tail
+    ctx.lineTo(-bodyLen * 0.5, -width * 0.5);
+    ctx.lineTo(0, -width * 0.7);                         // Left side
+    ctx.lineTo(bodyLen * 0.5, -width * 0.4);
+  }
+
+  private drawSharkShape(ctx: CanvasRenderingContext2D, size: number, stretch: number): void {
+    const bodyLen = size * 2.0 * stretch;
+    const width = size * 0.6;
+    const finHeight = size * 0.8;
+
+    ctx.moveTo(bodyLen, 0);                              // Snout
+    ctx.lineTo(bodyLen * 0.6, width * 0.3);
+    ctx.lineTo(bodyLen * 0.2, width * 0.4);
+    ctx.lineTo(0, finHeight);                            // Dorsal fin
+    ctx.lineTo(-bodyLen * 0.2, width * 0.3);
+    ctx.lineTo(-bodyLen * 0.6, width * 0.5);             // Tail upper
+    ctx.lineTo(-bodyLen * 0.8, 0);                       // Tail center
+    ctx.lineTo(-bodyLen * 0.6, -width * 0.5);            // Tail lower
+    ctx.lineTo(-bodyLen * 0.2, -width * 0.3);
+    ctx.lineTo(bodyLen * 0.2, -width * 0.4);
+    ctx.lineTo(bodyLen * 0.6, -width * 0.3);
+  }
+
+  private drawOrcaShape(ctx: CanvasRenderingContext2D, size: number, stretch: number): void {
+    const bodyLen = size * 2.2 * stretch;
+    const width = size * 0.8;
+    const finHeight = size * 1.2;
+
+    ctx.moveTo(bodyLen, 0);                              // Snout
+    ctx.lineTo(bodyLen * 0.5, width * 0.4);
+    ctx.lineTo(bodyLen * 0.1, width * 0.5);
+    ctx.lineTo(-bodyLen * 0.1, finHeight);               // Tall dorsal
+    ctx.lineTo(-bodyLen * 0.3, width * 0.4);
+    ctx.lineTo(-bodyLen * 0.7, width * 0.6);
+    ctx.lineTo(-bodyLen * 0.9, 0);                       // Tail
+    ctx.lineTo(-bodyLen * 0.7, -width * 0.6);
+    ctx.lineTo(-bodyLen * 0.3, -width * 0.4);
+    ctx.lineTo(bodyLen * 0.1, -width * 0.5);
+    ctx.lineTo(bodyLen * 0.5, -width * 0.4);
+  }
+
+  private drawBarracudaShape(ctx: CanvasRenderingContext2D, size: number, stretch: number): void {
+    const bodyLen = size * 2.5 * stretch;
+    const width = size * 0.35;
+
+    ctx.moveTo(bodyLen, 0);                              // Sharp snout
+    ctx.lineTo(bodyLen * 0.7, width * 0.3);
+    ctx.lineTo(bodyLen * 0.3, width * 0.4);
+    ctx.lineTo(0, width * 0.45);
+    ctx.lineTo(-bodyLen * 0.4, width * 0.4);
+    ctx.lineTo(-bodyLen * 0.8, width * 0.5);
+    ctx.lineTo(-bodyLen * 0.95, 0);                      // Tail fork
+    ctx.lineTo(-bodyLen * 0.8, -width * 0.5);
+    ctx.lineTo(-bodyLen * 0.4, -width * 0.4);
+    ctx.lineTo(0, -width * 0.45);
+    ctx.lineTo(bodyLen * 0.3, -width * 0.4);
+    ctx.lineTo(bodyLen * 0.7, -width * 0.3);
   }
 
   private renderWind(direction: number, speed: number, _screenWidth: number, screenHeight: number): void {

@@ -48,3 +48,4 @@ The energy system adds a layer of resource management to the simulation.
 - **Effect**: Low energy reduces a bird's maximum speed and prevents mating.
 - **Restoration**: Energy is restored by feeding at food sources.
 - **Visuals**: If enabled, energy levels can be visualized through color gradients or statistics.
+

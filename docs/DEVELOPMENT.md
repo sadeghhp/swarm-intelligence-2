@@ -49,3 +49,4 @@ To add a new predator:
 2. Implement the required abstract methods and target scoring weights.
 3. Register the new predator in `PredatorFactory.ts`.
 4. Add it to the UI in `ControlPanel.ts`.
+

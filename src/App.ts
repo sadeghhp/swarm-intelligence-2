@@ -8,7 +8,7 @@ import { GlowEffect } from './rendering/GlowEffect';
 import { Canvas2DRenderer } from './rendering/Canvas2DRenderer';
 import { ControlPanel } from './ui/ControlPanel';
 import { Statistics } from './ui/Statistics';
-import { Wind, AttractorManager, FoodSourceManager, createPredator, BasePredator } from './environment';
+import { Wind, AttractorManager, FoodSourceManager, createPredator, BasePredator, clearOrcaPacks } from './environment';
 import { createAttractor } from './environment/Attractor';
 import type { ILoadedConfig, ISimulationConfig, IEnvironmentConfig, IRenderingConfig } from './types';
 
@@ -283,6 +283,7 @@ export class App {
         this.statistics.resetTime();
         this.attractors.clear();
         this.predators = [];
+        clearOrcaPacks(); // Clear orca pack coordination
         if (this.envConfig.predatorEnabled) {
           this.spawnPredators();
         }
@@ -375,6 +376,7 @@ export class App {
   private spawnPredators(): void {
     const count = this.envConfig.predatorCount || 1;
     this.predators = [];
+    clearOrcaPacks(); // Clear existing pack coordination
 
     const margin = 100;
     const preset = this.config.predatorPresets[this.envConfig.predatorType];
@@ -386,7 +388,7 @@ export class App {
       this.predators.push(predator);
     }
 
-    console.log(`Spawned ${count} predator(s)`);
+    console.log(`Spawned ${count} ${this.envConfig.predatorType} predator(s)`);
   }
 
   /**
@@ -558,12 +560,13 @@ export class App {
             window.innerHeight
           );
 
-          // Apply panic from each predator
+          // Apply panic from each predator (uses effective radius - reduced in silent mode)
+          const panicStrength = predator.isSilent() ? 0.2 : 0.5;
           this.flock.applyPanicAtPosition(
             predator.position.x,
             predator.position.y,
-            predator.panicRadius,
-            0.5
+            predator.panicRadius, // Already adjusted by getEffectivePanicRadius()
+            panicStrength
           );
         }
         

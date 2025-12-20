@@ -1,3 +1,4 @@
 export { BasePredator } from './BasePredator';
-export { createPredator } from './PredatorFactory';
+export type { IPackCoordinator } from './BasePredator';
+export { createPredator, clearOrcaPacks } from './PredatorFactory';
 

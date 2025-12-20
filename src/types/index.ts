@@ -330,6 +330,9 @@ export type PredatorBehaviorState =
   | 'attacking'
   | 'diving'
   | 'ambushing'
+  | 'ascending'
+  | 'circling'
+  | 'herding'
   | 'recovering';
 
 export interface IPredatorStats {

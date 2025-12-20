@@ -13,6 +13,9 @@ const PREDATOR_STATE_COLORS: Record<PredatorBehaviorState, string> = {
   attacking: '#ff6666',
   diving: '#ff6666',
   ambushing: '#9b59b6',
+  ascending: '#00aaff',
+  circling: '#ff9900',
+  herding: '#44aa44',
   recovering: '#888888'
 };
 
